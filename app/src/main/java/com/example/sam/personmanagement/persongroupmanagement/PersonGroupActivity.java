@@ -65,6 +65,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 
+import com.example.sam.personmanagement.MainActivity;
 import com.example.sam.personmanagement.R;
 import com.example.sam.personmanagement.helper.LogHelper;
 import com.example.sam.personmanagement.helper.PersonManagement;
@@ -80,6 +81,7 @@ import java.util.UUID;
 
 public class PersonGroupActivity extends AppCompatActivity {
     // Background task of adding a person group.
+    ProgressDialog progressDialog;
     class AddPersonGroupTask extends AsyncTask<String, String, String> {
         // Indicate the next step is to add person in this group, or finish editing this group.
         boolean mAddPerson;
@@ -123,7 +125,6 @@ public class PersonGroupActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String result) {
-            progressDialog.dismiss();
 
             if (result != null) {
                 addLog("Response: Success. Person group " + result + " created");
@@ -233,7 +234,7 @@ public class PersonGroupActivity extends AppCompatActivity {
     }
 
     private void setUiBeforeBackgroundTask() {
-        progressDialog.show();
+
     }
 
     // Show the status of background detection task on screen.
@@ -264,7 +265,6 @@ public class PersonGroupActivity extends AppCompatActivity {
     PersonGridViewAdapter personGridViewAdapter;
 
     // Progress dialog popped up when communicating with server.
-    ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -290,6 +290,7 @@ public class PersonGroupActivity extends AppCompatActivity {
             oldPersonGroupName = "nguoinha";
             editTextPersonGroupName.setText(oldPersonGroupName);
             persongroupid.setText(personGroupId);
+
             new AddPersonGroupTask(false).execute(personGroupId);
 
         }
@@ -508,9 +509,11 @@ public class PersonGroupActivity extends AppCompatActivity {
                 Iterator<String> it = faceIdSet.iterator();
                 Uri uri = Uri.parse(StorageHelper.getFaceUri(it.next(), PersonGroupActivity.this));
                 ((ImageView)convertView.findViewById(R.id.image_person)).setImageURI(uri);
+                ((TextView)convertView.findViewById(R.id.number_picture)).setText("Có" + faceIdSet.size() + "ảnh");
             } else {
                 Drawable drawable = getResources().getDrawable(R.drawable.select_image);
                 ((ImageView)convertView.findViewById(R.id.image_person)).setImageDrawable(drawable);
+                ((TextView)convertView.findViewById(R.id.number_picture)).setText("Không có ảnh");
             }
 
             // set the text of the item

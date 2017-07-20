@@ -34,7 +34,14 @@ package com.example.sam.personmanagement.helper;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.widget.Toast;
 
+import com.microsoft.projectoxford.face.FaceServiceClient;
+import com.microsoft.projectoxford.face.contract.Person;
+import com.microsoft.projectoxford.face.rest.ClientException;
+
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -48,6 +55,23 @@ public class StorageHelper {
                 context.getSharedPreferences("PersonGroupIdSet", Context.MODE_PRIVATE);
         return personGroupIdSet.getStringSet("PersonGroupIdSet", new HashSet<String>());
     }
+
+    public static void setApiKey(String subscription_key, Context context){
+        SharedPreferences apiKey =
+                context.getSharedPreferences("ApiKey", Context.MODE_PRIVATE);
+
+        SharedPreferences.Editor apiKeyEditor = apiKey.edit();
+        apiKeyEditor.putString("subscription_key", subscription_key);
+        apiKeyEditor.commit();
+    }
+
+    public static String getApiKey(Context context){
+        SharedPreferences apiKey =
+                context.getSharedPreferences("ApiKey", Context.MODE_PRIVATE);
+
+        return apiKey.getString("subscription_key", "");
+    }
+
 
     public static String getPersonGroupName(String personGroupId, Context context) {
         SharedPreferences personGroupIdNameMap =
@@ -127,6 +151,14 @@ public class StorageHelper {
         return personIdNameMap.getString(personId, "");
     }
 
+    public static void clearPersonIds(String personGroupId, Context context) {
+        SharedPreferences personIdNameMap =
+                context.getSharedPreferences(personGroupId + "PersonIdNameMap", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = personIdNameMap.edit();
+        editor.clear();
+        editor.commit();
+    }
+
     public static void setPersonName(String personIdToAdd, String personName, String personGroupId, Context context) {
         SharedPreferences personIdNameMap =
                 context.getSharedPreferences(personGroupId + "PersonIdNameMap", Context.MODE_PRIVATE);
@@ -175,6 +207,14 @@ public class StorageHelper {
         SharedPreferences faceIdSet =
                 context.getSharedPreferences(personId + "FaceIdSet", Context.MODE_PRIVATE);
         return faceIdSet.getStringSet("FaceIdSet", new HashSet<String>());
+    }
+
+    public static void getAllFaceIdsfromServer(String personGroupId, Context context) throws IOException, ClientException {
+//        List<String> listpersonIds = new ArrayList<>();
+//        FaceServiceClient faceServiceClient = PersonManagement.getFaceServiceClient();
+//        Person[] listpersons = faceServiceClient.listPersons(personGroupId);
+//
+//        Toast.makeText(context, listpersons.length + "", Toast.LENGTH_SHORT).show();
     }
 
     public static String getFaceUri(String faceId, Context context) {

@@ -3,11 +3,20 @@
 
     <item
         is-multidex="true"
+        jar="C:\Users\Sam\.android\build-cache\b97447339b3d445a49c75e38f668c1ce00246c43\output\jars\classes.jar"
+        jumboMode="true"
+        optimize="true"
+        revision="25.0.3"
+        sha1="a2af9c72ccaa4c5c049b500ca6ea664a4ce1f7d4">
+        <dex dex="D:\Project\Android\PersonManagement-master\app\build\intermediates\transforms\dex\debug\folders\1000\10\classes_079dc8796d1db3e20dbb2eec9991fdcd8a67b4ab\classes.dex" />
+    </item>
+    <item
+        is-multidex="true"
         jar="D:\Project\Android\PersonManagement-master\app\build\intermediates\incremental-classes\debug\instant-run-bootstrap.jar"
         jumboMode="true"
         optimize="true"
         revision="25.0.3"
-        sha1="08aeb16391ada2d0cebd2851bae337b49c86b137">
+        sha1="5078efbf7b596b8fa90aa9a1e769f57cf51686cb">
         <dex dex="D:\Project\Android\PersonManagement-master\app\build\intermediates\transforms\dex\debug\folders\1000\10000\instant-run-bootstrap_741fe5f3201dcdc7d2ef9a3f18f0193d0fe557a0\classes.dex" />
     </item>
     <item

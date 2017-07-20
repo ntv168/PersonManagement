@@ -219,7 +219,8 @@ public class AddFaceToPersonActivity extends AppCompatActivity {
                 }
             }
             addLog("Response: Success. Face(s) " + faceIds + "added to person " + mPersonId);
-            finish();
+            setInfo("Successful");
+//            finish();
         }
     }
 
@@ -315,7 +316,12 @@ public class AddFaceToPersonActivity extends AppCompatActivity {
             }
 
             if (faceIndices.size() > 0) {
-                new AddFaceTask(faceIndices).execute();
+                for (int i = 0; i < faceIndices.size(); ++i) {
+                    List<Integer> list = new ArrayList<>();
+                    list.add(faceIndices.get(i));
+                    new AddFaceTask(list).execute();
+                }
+
             } else {
                 finish();
             }

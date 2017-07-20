@@ -28,6 +28,7 @@
             android:parentActivityName=".persongroupmanagement.PersonGroupActivity"></activity>
         <activity android:name=".persongroupmanagement.PersonGroupActivity"
             android:parentActivityName=".MainActivity">
+
         </activity>
         <activity android:name=".DetectPersonManagement"
             android:parentActivityName=".MainActivity">
@@ -42,6 +43,10 @@
         </activity>
         <service android:name=".service.CameraService"
             android:enabled="true"/>
+
+        <activity android:name=".testRequest.IdentificationActivity">
+            
+        </activity>
     </application>
 
 </manifest>

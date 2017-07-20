@@ -40,6 +40,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -66,6 +67,8 @@ import com.microsoft.projectoxford.face.FaceServiceClient;
 import com.microsoft.projectoxford.face.contract.CreatePersonResult;
 
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -77,9 +80,15 @@ public class PersonActivity extends AppCompatActivity {
     class AddPersonTask extends AsyncTask<String, String, String> {
         // Indicate the next step is to add face in this person, or finish editing this person.
         boolean mAddFace;
+        String personName;
 
-        AddPersonTask (boolean addFace) {
+        AddPersonTask (boolean addFace, String personName) {
             mAddFace = addFace;
+            try {
+                this.personName = URLEncoder.encode(personName,"UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
         }
 
         @Override
@@ -90,10 +99,12 @@ public class PersonActivity extends AppCompatActivity {
                 publishProgress("Syncing with server to add person...");
                 addLog("Request: Creating Person in person group" + params[0]);
 
+                Log.d("----------", "doInBackground: " + personName + "---------------");
+
                 // Start the request to creating person.
                 CreatePersonResult createPersonResult = faceServiceClient.createPerson(
                         params[0],
-                        getString(R.string.user_provided_person_name),
+                        personName,
                         getString(R.string.user_provided_description_data));
 
                 return createPersonResult.personId.toString();
@@ -165,7 +176,6 @@ public class PersonActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String result) {
-            progressDialog.dismiss();
 
             if (result != null) {
                 addLog("Response: Success. Group " + result + " training completed");
@@ -214,7 +224,6 @@ public class PersonActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String result) {
-            progressDialog.dismiss();
 
             if (result != null) {
                 setInfo("Face " + result + " successfully deleted");
@@ -224,7 +233,7 @@ public class PersonActivity extends AppCompatActivity {
     }
 
     private void setUiBeforeBackgroundTask() {
-        progressDialog.show();
+
     }
 
     // Show the status of background detection task on screen.
@@ -359,19 +368,21 @@ public class PersonActivity extends AppCompatActivity {
 
     public void doneAndSave(View view) {
         if (personId == null) {
-            new AddPersonTask(false).execute(personGroupId);
+            EditText editTextPersonName = (EditText)findViewById(R.id.edit_person_name);
+            String newPersonName = editTextPersonName.getText().toString();
+            new AddPersonTask(false,newPersonName).execute(personGroupId);
         } else {
             doneAndSave();
         }
     }
 
-    public void addFace(View view) {
-        if (personId == null) {
-            new AddPersonTask(true).execute(personGroupId);
-        } else {
-            addFace();
-        }
-    }
+//    public void addFace(View view) {
+//        if (personId == null) {
+//            new AddPersonTask(true).execute(personGroupId);
+//        } else {
+//            addFace();
+//        }
+//    }
 
     private void doneAndSave() {
         TextView textWarning = (TextView)findViewById(R.id.info);
@@ -381,6 +392,7 @@ public class PersonActivity extends AppCompatActivity {
             textWarning.setText(R.string.person_name_empty_warning_message);
             return;
         }
+
 
         StorageHelper.setPersonName(personId, newPersonName, personGroupId, PersonActivity.this);
         new TrainPersonGroupTask().execute(personGroupId);
@@ -401,7 +413,7 @@ public class PersonActivity extends AppCompatActivity {
             case REQUEST_SELECT_IMAGE:
                 if (resultCode == RESULT_OK) {
                     Uri uriImagePicked = data.getData();
-                    Intent intent = new Intent(this, AddFaceToPersonActivity.class);
+                    Intent intent = new Intent(this, SelectImageActivity.class);
                     intent.putExtra("PersonId", personId);
                     intent.putExtra("PersonGroupId", personGroupId);
                     intent.putExtra("ImageUriStr", uriImagePicked.toString());
@@ -527,8 +539,10 @@ public class PersonActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.menu_add_person) {
+            EditText editTextPersonName = (EditText)findViewById(R.id.edit_person_name);
+            String newPersonName = editTextPersonName.getText().toString();
             if (personId == null) {
-                new AddPersonTask(true).execute(personGroupId);
+                new AddPersonTask(true, newPersonName).execute(personGroupId);
             } else {
                 addFace();
             }

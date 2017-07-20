@@ -16,19 +16,20 @@ import com.microsoft.projectoxford.face.FaceServiceRestClient;
 
 public class PersonManagement extends Application{
     private static Context context;
+
     @Override
     public void onCreate() {
         super.onCreate();
-        sFaceServiceClient = new FaceServiceRestClient(getString(R.string.endpoint), getString(R.string.subscription_key));
 
         context = this.getApplicationContext();
         VoiceUtils.initializeInstance(context);
 
-        FacedetectUtils singleFace = FacedetectUtils.getInstance(context);
         Log.d("App context","initiating .....");
     }
 
     public static FaceServiceClient getFaceServiceClient() {
+        String apiKey = StorageHelper.getApiKey(context);
+        sFaceServiceClient = new FaceServiceRestClient(context.getString(R.string.endpoint), apiKey);
         return sFaceServiceClient;
     }
 

@@ -4,4 +4,6 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
 
     <dimen name="view_margin">5dp</dimen>
+
+    <dimen name="button_choose_image">15dp</dimen>
 </resources>

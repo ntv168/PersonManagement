@@ -53,6 +53,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.sam.personmanagement.R;
+import com.example.sam.personmanagement.camera.CameraConfig;
 import com.example.sam.personmanagement.camera.CameraSourcePreview;
 import com.example.sam.personmanagement.camera.GraphicOverlay;
 import com.example.sam.personmanagement.helper.ImageHelper;
@@ -148,10 +149,30 @@ public final class FaceTrackerActivity extends AppCompatActivity {
         mCallBack = new CameraSource.PictureCallback() {
             @Override
             public void onPictureTaken(byte[] data) {
+//                Toast.makeText(FaceTrackerActivity.this, "take a picture", Toast.LENGTH_SHORT).show();
+
                 FaceTrackerActivity.this.DETECT_RUNNING = true;
                 showMessage("camera data length: "+ data.length);
-                Bitmap tmp = BitmapFactory.decodeByteArray(data, 0, data.length);
-                
+
+                //Rezise bitmap
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inPurgeable = true;
+
+                Bitmap tmp = BitmapFactory.decodeByteArray(data, 0, data.length, options);
+
+                if(tmp.getHeight() > 300 && tmp.getWidth() > 300){
+                    tmp = Bitmap.createScaledBitmap(tmp, 300, 300, false);
+
+                }
+
+
+                //respone image base64
+                CameraConfig camera = CameraConfig.getInstance();
+                ByteArrayOutputStream os = new ByteArrayOutputStream();
+                tmp.compress(Bitmap.CompressFormat.JPEG, 100, os);
+                camera.setFaceDetected(1);
+                camera.setFaceImage(os.toByteArray());
+
                 String root = Environment.getExternalStorageDirectory().toString();
                 File myDir = new File(root + "/saved_images");
                 myDir.mkdirs();
@@ -161,13 +182,14 @@ public final class FaceTrackerActivity extends AppCompatActivity {
                 try {
                     FileOutputStream out = new FileOutputStream(file);
                     tmp.compress(Bitmap.CompressFormat.JPEG, 100, out);
+//
                     out.close();
                     showMessage("Saved picture......."+file.getCanonicalPath());
                 } catch (IOException e){
                     Log.d("CAMERA file", e.getMessage());
                 }
-                
-                
+
+
 
 //                detecting = false;
                 // If image is selected successfully, set the image URI and bitmap.
@@ -198,10 +220,12 @@ public final class FaceTrackerActivity extends AppCompatActivity {
     }
 
     private class DetectionTask extends AsyncTask<InputStream, String, com.microsoft.projectoxford.face.contract.Face[]> {
+        long startdetect = System.currentTimeMillis();
         @Override
         protected com.microsoft.projectoxford.face.contract.Face[] doInBackground(InputStream... params) {
             // Get an instance of face service client to detect faces in image.
             FaceServiceClient faceServiceClient = PersonManagement.getFaceServiceClient();
+
             try{
                 publishProgress("Detecting...");
 
@@ -233,7 +257,8 @@ public final class FaceTrackerActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(com.microsoft.projectoxford.face.contract.Face[] result) {
             progressDialog.dismiss();
-
+            long enddetect= System.currentTimeMillis();
+            Log.d("--------------", "time detect --------------- " + (enddetect - startdetect));
 
             if (result != null) {
                 // Set the adapter of the ListView which contains the details of detectingfaces.
@@ -246,7 +271,6 @@ public final class FaceTrackerActivity extends AppCompatActivity {
                     FaceTrackerActivity.this.DETECT_RUNNING = false;
                 } else {
                     detecting= true;
-                    setInfo("Click on the \"Identify\" button to identify the faces in image.");
 
                     // Called identify after detection.
                     if (detecting&& mPersonGroupId != null) {
@@ -274,10 +298,12 @@ public final class FaceTrackerActivity extends AppCompatActivity {
             }
 
         }
+
     }
 
     private class IdentificationTask extends AsyncTask<UUID, String, IdentifyResult[]> {
         String mPersonGroupId;
+        long startidentify = System.currentTimeMillis();
         IdentificationTask(String personGroupId) {
             this.mPersonGroupId = personGroupId;
             Log.d("--------", "IdentificationTask: " + personGroupId);
@@ -333,40 +359,44 @@ public final class FaceTrackerActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(IdentifyResult[] result) {
+            long endidentify= System.currentTimeMillis();
+            Log.d("----------------", "time identity: ------------- " + (endidentify - startidentify));
+            Toast.makeText(FaceTrackerActivity.this, ""+ (endidentify - startidentify), Toast.LENGTH_LONG).show();
             // Show the result on screen when detection is done.
-                // Set the information about the detection result.
-                if (result != null) {
+            // Set the information about the detection result.
+            if (result != null) {
 
-                    String message = "";
-                    Boolean hasAqua = false;
-                    int stranger = 0;
+                String message = "";
+                Boolean hasAqua = false;
+                int stranger = 0;
 
-                    for (IdentifyResult identifyResult: result) {
-                        if (identifyResult.candidates.size() > 0) {
-                            if (identifyResult.candidates.get(0).confidence > 0.65) {
-                                String personId = identifyResult.candidates.get(0).personId.toString();
-                                String personName = StorageHelper.getPersonName(
-                                        personId, mPersonGroupId, FaceTrackerActivity.this);
+                for (IdentifyResult identifyResult: result) {
+                    if (identifyResult.candidates.size() > 0) {
+                        if (identifyResult.candidates.get(0).confidence > 0.65) {
+                            String personId = identifyResult.candidates.get(0).personId.toString();
+                            String personName = StorageHelper.getPersonName(
+                                    personId, mPersonGroupId, FaceTrackerActivity.this);
 
-                                message += personName;
-                                hasAqua = true;
-                            } else {
-                                stranger++;
-                            }
+                            message += personName;
+                            hasAqua = true;
                         } else {
                             stranger++;
                         }
+                    } else {
+                        stranger++;
                     }
-                    if (stranger > 0 && hasAqua) {
-                        message += " và " + stranger + "người lạ";
-                    } if (stranger > 0 && !hasAqua) {
-                        message += "Có" + stranger + "người lạ";
-                    }
-
-                    showReply(message);
-
                 }
+                if (stranger > 0 && hasAqua) {
+                    message += " và " + stranger + "người lạ";
+                } if (stranger > 0 && !hasAqua) {
+                    message += "Có" + stranger + "người lạ";
+                }
+
+                showReply(message);
+                Toast.makeText(FaceTrackerActivity.this, "---------" +message, Toast.LENGTH_SHORT).show();
+
             }
+        }
 
     }
 

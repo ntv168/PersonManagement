@@ -17,6 +17,33 @@
     tools:context=".ui.SelectImageActivity">
 
 
+    <GridView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:id="@+id/gridView_faces_to_select"
+        android:layout_above="@id/info"
+        android:layout_below="@id/text_select_face_tip"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginBottom="@dimen/button_choose_image"
+        android:numColumns="3"
+        android:verticalSpacing="10dp"
+        android:horizontalSpacing="10dp"
+        android:gravity="center"
+        />
+
+
+    <TextView
+        android:id="@+id/info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:textColor="@color/white"
+        android:text="TextView" />
+
     <Button
         android:id="@+id/button_take_a_photo"
         style="@style/ButtonStyle"
@@ -24,7 +51,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="25dp"
+        android:layout_marginBottom="@dimen/button_choose_image"
         android:onClick="takePhoto"
         android:text="@string/take_photo" />
 
@@ -36,7 +63,8 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
-        android:layout_marginTop="25dp"
+        android:layout_marginBottom="30dp"
+
         android:onClick="selectImageInAlbum"
         android:text="@string/select_image_in_album" />
 
